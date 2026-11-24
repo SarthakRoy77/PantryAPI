@@ -1,0 +1,25 @@
+{
+  "name": "pantryapi",
+  "version": "1.0.0",
+  "description": "A API for a pantry service",
+  "homepage": "https://github.com/SarthakRoy77/PantryAPI#readme",
+  "bugs": {
+    "url": "https://github.com/SarthakRoy77/PantryAPI/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SarthakRoy77/PantryAPI.git"
+  },
+  "license": "ISC",
+  "author": "Sarthak Roy",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3"
+  }
+}
