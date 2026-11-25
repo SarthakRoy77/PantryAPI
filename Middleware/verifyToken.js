@@ -12,4 +12,4 @@ const verifyToken = (req, res, next) => {
     } catch (error) {
         return res.status(401).json({ message: `Error in Middleware /verifyToken: ${error.message}` });
     }
-}
+};
