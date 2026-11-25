@@ -1,11 +1,13 @@
 import express from 'express';
 import userRoutes from './Routes/UserRoutes.js'
 import 'dotenv/config'
+import cookies from 'cookie-parser'
 
 //Initialize Express API
 const app = express();
 
 // Middleware (for parsing requests)
+app.use(cookies());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

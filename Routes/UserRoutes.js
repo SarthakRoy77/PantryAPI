@@ -1,6 +1,8 @@
 import express from 'express'
 import bcrypt from 'bcrypt'
 import { db } from '../dist/src/prisma/db.js';
+import jwt from 'jsonwebtoken'
+import 'dotenv/config'
 
 /** In this project, I am not using controllers- since the project 
 - is not so complex, however I would use it in a real world project. **/
@@ -66,5 +68,64 @@ router.post('/register', async (req, res) => {
         return res.status(500).json({ message: `Error in POST /register: ${error.message}` });
     }
 });
+
+router.post('/login/:id', async (req, res) => {
+    try {
+
+        if (req.cookies.token) {
+            return res.status(200).json({message : `User has already logged in `})
+        }
+        const { id } = req.params;
+        const password = req.body["password"];
+
+        if (!id || isNaN(id)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        if (!password || typeof password !== "string") {
+            return res.status(400).json({ message: "Password is required (as a string)" });
+        }
+
+        const user = await db.orm.public.User
+            .where({ id: parseInt(id) })
+            .first();
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Invalid password" });
+        }
+
+        const payload = {
+            role : user.userType,
+            name : user.name
+        }
+
+        const token = jwt.sign(payload, process.env.JWT_SECRET_KEY)
+        
+        res.cookie('token', token, {
+            secure : false,
+            httpOnly : true
+        })
+
+        res.status(201).json({message: `User with the id ${id} was logged in succesfully`})
+
+    } catch (error) {
+        return res.status(500).json({ message: `Error in POST /login/:id: ${error.message}` });
+    }
+})
+
+router.delete('/logout', async (req, res) => {
+    try {
+        res.clearCookie('token')
+        res.status(200).json({message: `The user was logged out successfully`})
+    } catch (error) {
+        return res.status(500).json({message : `Error in DELETE /logout: ${error.message}`})
+    }
+})
 
 export default router;
