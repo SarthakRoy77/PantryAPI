@@ -1,16 +1,70 @@
-const express = require('express');
-const router = express.Router();
+import express from 'express'
+import bcrypt from 'bcrypt'
+import { db } from '../dist/src/prisma/db.js';
 
 /** In this project, I am not using controllers- since the project 
- * is not so complex, however I would use it in a real world project. **/
+- is not so complex, however I would use it in a real world project. **/
 
-router.post('/register',  async (req, res) => {
+const router = express.Router();
+
+router.post('/register', async (req, res) => {
     try {
-        // Registration logic here
-    }
-    catch (error) {
-        res.status(500).json({ message: `${error.message}` });
-    }
-})
+        const name = req.body["name"];
+        const password = req.body["password"];
+        const adminCode = req.body["adminCode"];
 
-module.exports = router;
+        if (!name || typeof name !== "string" || !name.trim()) {
+            return res.status(400).json({ message: "Name is required (as a non-empty string)" });
+        }
+
+        if (!password || typeof password !== "string" || password.length < 6) {
+            return res.status(400).json({ message: "Password is required (at least 6 characters)" });
+        }
+
+        let userType = "user";
+
+        if (adminCode !== undefined && adminCode !== "") {
+            if (typeof adminCode !== "string") {
+                return res.status(400).json({ message: "Admin code must be a string" });
+            }
+            if (!process.env.ADMIN_CODE) {
+                console.error("ADMIN_CODE environment variable is missing");
+                return res.status(500).json({ message: "Server configuration error" });
+            }
+            if (adminCode !== process.env.ADMIN_CODE) {
+                return res.status(403).json({ message: "Invalid admin code" });
+            }
+            userType = "admin";
+        }
+
+        const existingUser = await db.orm.public.User
+            .where({ name: name.trim() })
+            .first();
+
+        if (existingUser) {
+            return res.status(409).json({ message: "User already exists" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = await db.orm.public.User.create({
+                name: name.trim(),
+                password: hashedPassword,
+                userType,
+        });
+
+        return res.status(201).json({
+            message: `${userType === "admin" ? "Admin" : "User"} registered successfully`,
+            user: {
+                id: user.id,
+                name: user.name,
+                userType: user.userType,
+                dateCreatedAt: user.dateCreatedAt,
+            },
+        });
+    } catch (error) {
+        return res.status(500).json({ message: `Error in POST /register: ${error.message}` });
+    }
+});
+
+export default router;

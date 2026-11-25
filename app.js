@@ -1,6 +1,6 @@
-const express = require('express');
-const userRoutes = require('./Routes/UserRoutes.js');
-require('dotenv').config({quiet: true});
+import express from 'express';
+import userRoutes from './Routes/UserRoutes.js'
+import 'dotenv/config'
 
 //Initialize Express API
 const app = express();
@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/users', userRoutes);
+app.use('/api/v1', userRoutes);
 
 //Listening to the server
 app.listen(process.env.PORT, ()  => {
