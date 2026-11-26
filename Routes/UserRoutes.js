@@ -103,21 +103,72 @@ router.post('/login/:id', async (req, res) => {
         const payload = {
             role : user.userType,
             name : user.name
-        }
+        };
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET_KEY)
+        const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
         
         res.cookie('token', token, {
             secure : false,
             httpOnly : true
-        })
+        });
 
-        res.status(201).json({message: `User with the id ${id} was logged in succesfully`})
+        res.status(201).json({message: `User with the id ${id} was logged in succesfully`});
 
     } catch (error) {
         return res.status(500).json({ message: `Error in POST /login/:id: ${error.message}` });
     }
-})
+});
+
+router.post('/login', async (req, res) => {
+    try {
+
+        if (req.cookies.token) {
+            return res.status(200).json({message : `User has already logged in `})
+        }
+
+        const userName = req.body["name"];
+        const password = req.body["password"];
+
+        if (!userName) {
+            return res.status(400).json({ message: "Username is required" });
+        }
+
+        if (!password || typeof password !== "string") {
+            return res.status(400).json({ message: "Password is required (as a string)" });
+        }
+
+        const user = await db.orm.public.User
+            .where({ name: userName })
+            .first();
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Invalid password" });
+        }
+
+        const payload = {
+            role : user.userType,
+            name : user.name
+        };
+
+        const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
+        
+        res.cookie('token', token, {
+            secure : false,
+            httpOnly : true
+        });
+
+        res.status(201).json({message: `User with the name ${userName} was logged in succesfully`});
+
+    } catch (error) {
+        return res.status(500).json({ message: `Error in POST /login: ${error.message}` });
+    }
+});
 
 router.delete('/logout', async (req, res) => {
     try {
@@ -126,6 +177,6 @@ router.delete('/logout', async (req, res) => {
     } catch (error) {
         return res.status(500).json({message : `Error in DELETE /logout: ${error.message}`})
     }
-})
+});
 
 export default router;
