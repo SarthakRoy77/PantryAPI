@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken'
+
 //Verify Token logic
 const verifyToken = (req, res, next) => {
     try {
@@ -10,6 +12,8 @@ const verifyToken = (req, res, next) => {
 
         next();
     } catch (error) {
-        return res.status(401).json({ message: `Error in Middleware /verifyToken: ${error.message}` });
+        return res.status(401).json({ message: `Error in Middleware verifyToken: ${error.message}` });
     }
 };
+
+export default verifyToken;

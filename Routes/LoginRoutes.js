@@ -112,7 +112,7 @@ router.post('/login/:id', async (req, res) => {
             httpOnly : true
         });
 
-        res.status(201).json({message: `User with the id ${id} was logged in succesfully`});
+        return res.status(201).json({message: `User with the id ${id} was logged in succesfully`});
 
     } catch (error) {
         return res.status(500).json({ message: `Error in POST /login/:id: ${error.message}` });
@@ -163,7 +163,7 @@ router.post('/login', async (req, res) => {
             httpOnly : true
         });
 
-        res.status(201).json({message: `User with the name ${userName} was logged in succesfully`});
+        return res.status(201).json({message: `User with the name ${userName} was logged in succesfully`});
 
     } catch (error) {
         return res.status(500).json({ message: `Error in POST /login: ${error.message}` });
@@ -173,7 +173,7 @@ router.post('/login', async (req, res) => {
 router.delete('/logout', async (req, res) => {
     try {
         res.clearCookie('token')
-        res.status(200).json({message: `The user was logged out successfully`})
+        return res.status(200).json({message: `The user was logged out successfully`})
     } catch (error) {
         return res.status(500).json({message : `Error in DELETE /logout: ${error.message}`})
     }

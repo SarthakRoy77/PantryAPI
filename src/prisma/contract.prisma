@@ -14,3 +14,10 @@ model User {
     dateCreatedAt DateTime @default(now())
 }
 
+model FoodItem {
+    id Int @id @default(autoincrement())
+    name String
+    price Int
+    calories Int 
+    dateAddedAt DateTime @default(now())
+}

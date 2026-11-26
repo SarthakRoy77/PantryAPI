@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract-types';
 
 export type StorageHash =
-  StorageHashBase<'cdc8e423e06262cc3e76f69be3136ea8f946fa3bc45b9edd06a2346e7103ca1c'>;
+  StorageHashBase<'cad9425c14fbf20ec4d37a9547eed4312e094c5b67e98a9a3c3349b9c3e240ee'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -317,6 +317,14 @@ export type StorageColumnInputTypes = ColumnTypesFromStorage<
 >;
 
 export namespace Models {
+  export type public_FoodItem = {
+    calories: FieldOutputTypes['public']['FoodItem']['calories'];
+    dateAddedAt: FieldOutputTypes['public']['FoodItem']['dateAddedAt'];
+    id: FieldOutputTypes['public']['FoodItem']['id'];
+    name: FieldOutputTypes['public']['FoodItem']['name'];
+    price: FieldOutputTypes['public']['FoodItem']['price'];
+    readonly [RelationKeys]?: never;
+  };
   export type public_User = {
     dateCreatedAt: FieldOutputTypes['public']['User']['dateCreatedAt'];
     id: FieldOutputTypes['public']['User']['id'];
@@ -329,6 +337,7 @@ export namespace Models {
 
 export declare const models: {
   public: {
+    FoodItem: Models.public_FoodItem;
     User: Models.public_User;
   };
 };
@@ -351,6 +360,50 @@ type ContractBase = Omit<
         readonly kind: 'postgres-schema';
         readonly entries: {
           readonly table: {
+            readonly FoodItem: {
+              columns: {
+                readonly calories: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly dateAddedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                  readonly many: false;
+                };
+                readonly name: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly price: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [];
+              foreignKeys: readonly [];
+            };
             readonly User: {
               columns: {
                 readonly dateCreatedAt: {
@@ -416,12 +469,53 @@ type ContractBase = Omit<
   readonly target: 'postgres';
   readonly targetFamily: 'sql';
   readonly roots: {
+    readonly FoodItem: { readonly namespace: 'public' & NamespaceId; readonly model: 'FoodItem' };
     readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
   };
   readonly domain: {
     readonly namespaces: {
       readonly public: {
         readonly models: {
+          readonly FoodItem: {
+            readonly fields: {
+              readonly calories: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly dateAddedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly name: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly price: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'FoodItem';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly calories: { readonly column: 'calories' };
+                readonly dateAddedAt: { readonly column: 'dateAddedAt' };
+                readonly id: { readonly column: 'id' };
+                readonly name: { readonly column: 'name' };
+                readonly price: { readonly column: 'price' };
+              };
+            };
+          };
           readonly User: {
             readonly fields: {
               readonly dateCreatedAt: {
