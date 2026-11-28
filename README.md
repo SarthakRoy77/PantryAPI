@@ -12,12 +12,21 @@ npx prisma contract emit
 npx prisma migration plan
 npx prisma db migrate
 ``` 
-Use the above to migrate and update the schema
+- Use the above to migrate and update the schema
 
 ```bash
 npx tsc
 ```
-Use the above to compile the src and migrations in javascript for importing and using the PRISMA ORM 8 after every migration
+- Use the above to compile the src and migrations in javascript for importing and using the PRISMA ORM 8 after every migration to actually apply changes
+
+- Visit env.example to create your own .env
+
+```
+PORT = 3000
+DATABASE_URL="postgresql://<username>:<password>@localhost:5432/<database_name>"
+ADMIN_CODE="ADMIN_CODE"
+JWT_SECRET_KEY="JWT_SECRET_KEY"
+```
 
 ## Main modules used along with learning link
 
