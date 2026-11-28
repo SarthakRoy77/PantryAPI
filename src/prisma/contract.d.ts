@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract-types';
 
 export type StorageHash =
-  StorageHashBase<'cad9425c14fbf20ec4d37a9547eed4312e094c5b67e98a9a3c3349b9c3e240ee'>;
+  StorageHashBase<'9f242d52fdd67c5d7e1947e4cb1e8159202226acf7d0db9c805198a16c5cb7fe'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -272,6 +272,12 @@ type ParameterizedOutputTypeFunctions = PgParameterizedOutputTypes;
 type FieldTypeOverrides = {
   readonly public: {
     readonly models: {
+      readonly Employee: {
+        readonly EmployeeType: {
+          readonly output: 'receptionist' | 'chefs' | 'manager';
+          readonly input: 'receptionist' | 'chefs' | 'manager';
+        };
+      };
       readonly User: {
         readonly userType: { readonly output: 'admin' | 'user'; readonly input: 'admin' | 'user' };
       };
@@ -296,6 +302,12 @@ export type FieldInputTypes = FieldTypesFromDomain<
 >;
 type ColumnTypeOverrides = {
   readonly public: {
+    readonly Employee: {
+      readonly EmployeeType: {
+        readonly output: 'receptionist' | 'chefs' | 'manager';
+        readonly input: 'receptionist' | 'chefs' | 'manager';
+      };
+    };
     readonly User: {
       readonly userType: { readonly output: 'admin' | 'user'; readonly input: 'admin' | 'user' };
     };
@@ -317,6 +329,15 @@ export type StorageColumnInputTypes = ColumnTypesFromStorage<
 >;
 
 export namespace Models {
+  export type public_Employee = {
+    EmployeeType: FieldOutputTypes['public']['Employee']['EmployeeType'];
+    dateHiredAt: FieldOutputTypes['public']['Employee']['dateHiredAt'];
+    id: FieldOutputTypes['public']['Employee']['id'];
+    name: FieldOutputTypes['public']['Employee']['name'];
+    password: FieldOutputTypes['public']['Employee']['password'];
+    wage: FieldOutputTypes['public']['Employee']['wage'];
+    readonly [RelationKeys]?: never;
+  };
   export type public_FoodItem = {
     calories: FieldOutputTypes['public']['FoodItem']['calories'];
     dateAddedAt: FieldOutputTypes['public']['FoodItem']['dateAddedAt'];
@@ -337,6 +358,7 @@ export namespace Models {
 
 export declare const models: {
   public: {
+    Employee: Models.public_Employee;
     FoodItem: Models.public_FoodItem;
     User: Models.public_User;
   };
@@ -360,6 +382,60 @@ type ContractBase = Omit<
         readonly kind: 'postgres-schema';
         readonly entries: {
           readonly table: {
+            readonly Employee: {
+              columns: {
+                readonly EmployeeType: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'chefs'>;
+                  };
+                  readonly many: false;
+                };
+                readonly dateHiredAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                  readonly many: false;
+                };
+                readonly name: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly password: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly wage: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [];
+              foreignKeys: readonly [];
+            };
             readonly FoodItem: {
               columns: {
                 readonly calories: {
@@ -454,6 +530,10 @@ type ContractBase = Omit<
             };
           };
           readonly valueSet: {
+            readonly EmployeeType: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['receptionist', 'chefs', 'manager'];
+            };
             readonly UserType: {
               readonly kind: 'valueSet';
               readonly values: readonly ['admin', 'user'];
@@ -469,6 +549,7 @@ type ContractBase = Omit<
   readonly target: 'postgres';
   readonly targetFamily: 'sql';
   readonly roots: {
+    readonly Employee: { readonly namespace: 'public' & NamespaceId; readonly model: 'Employee' };
     readonly FoodItem: { readonly namespace: 'public' & NamespaceId; readonly model: 'FoodItem' };
     readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
   };
@@ -476,6 +557,51 @@ type ContractBase = Omit<
     readonly namespaces: {
       readonly public: {
         readonly models: {
+          readonly Employee: {
+            readonly fields: {
+              readonly EmployeeType: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly dateHiredAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly name: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly password: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly wage: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'Employee';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly EmployeeType: { readonly column: 'EmployeeType' };
+                readonly dateHiredAt: { readonly column: 'dateHiredAt' };
+                readonly id: { readonly column: 'id' };
+                readonly name: { readonly column: 'name' };
+                readonly password: { readonly column: 'password' };
+                readonly wage: { readonly column: 'wage' };
+              };
+            };
+          };
           readonly FoodItem: {
             readonly fields: {
               readonly calories: {
@@ -558,6 +684,14 @@ type ContractBase = Omit<
           };
         };
         readonly enum: {
+          readonly EmployeeType: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'RECEPTIONIST'; readonly value: 'receptionist' },
+              { readonly name: 'CHEFS'; readonly value: 'chefs' },
+              { readonly name: 'MANAGER'; readonly value: 'manager' },
+            ];
+          };
           readonly UserType: {
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
@@ -567,6 +701,11 @@ type ContractBase = Omit<
           };
         };
         readonly enumMemberTypes?: {
+          readonly EmployeeType: readonly [
+            { readonly name: 'RECEPTIONIST'; readonly value: 'receptionist' },
+            { readonly name: 'CHEFS'; readonly value: 'chefs' },
+            { readonly name: 'MANAGER'; readonly value: 'manager' },
+          ];
           readonly UserType: readonly [
             { readonly name: 'ADMIN'; readonly value: 'admin' },
             { readonly name: 'USER'; readonly value: 'user' },

@@ -4,6 +4,10 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "Employee": {
+      "model": "Employee",
+      "namespace": "public"
+    },
     "FoodItem": {
       "model": "FoodItem",
       "namespace": "public"
@@ -17,6 +21,23 @@
     "namespaces": {
       "public": {
         "enum": {
+          "EmployeeType": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "RECEPTIONIST",
+                "value": "receptionist"
+              },
+              {
+                "name": "CHEFS",
+                "value": "chefs"
+              },
+              {
+                "name": "MANAGER",
+                "value": "manager"
+              }
+            ]
+          },
           "UserType": {
             "codecId": "pg/text@1",
             "members": [
@@ -32,6 +53,86 @@
           }
         },
         "models": {
+          "Employee": {
+            "fields": {
+              "EmployeeType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "EmployeeType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "dateHiredAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "password": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "wage": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "EmployeeType": {
+                  "column": "EmployeeType"
+                },
+                "dateHiredAt": {
+                  "column": "dateHiredAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "password": {
+                  "column": "password"
+                },
+                "wage": {
+                  "column": "wage"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Employee"
+            }
+          },
           "FoodItem": {
             "fields": {
               "calories": {
@@ -175,6 +276,76 @@
       "public": {
         "entries": {
           "table": {
+            "Employee": {
+              "checks": [
+                {
+                  "expression": "\"EmployeeType\" IN ('receptionist', 'chefs', 'manager')",
+                  "name": "Employee_EmployeeType_check_b0d354aa",
+                  "prefix": "Employee_EmployeeType_check"
+                }
+              ],
+              "columns": {
+                "EmployeeType": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "chefs"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "EmployeeType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "dateHiredAt": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "password": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "wage": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "FoodItem": {
               "columns": {
                 "calories": {
@@ -290,6 +461,14 @@
             }
           },
           "valueSet": {
+            "EmployeeType": {
+              "kind": "valueSet",
+              "values": [
+                "receptionist",
+                "chefs",
+                "manager"
+              ]
+            },
             "UserType": {
               "kind": "valueSet",
               "values": [
@@ -303,7 +482,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "cad9425c14fbf20ec4d37a9547eed4312e094c5b67e98a9a3c3349b9c3e240ee"
+    "storageHash": "9f242d52fdd67c5d7e1947e4cb1e8159202226acf7d0db9c805198a16c5cb7fe"
   },
   "capabilities": {
     "postgres": {

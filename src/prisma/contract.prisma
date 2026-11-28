@@ -6,12 +6,28 @@ enum UserType {
     USER = "user"
 }
 
+enum EmployeeType {
+    @@type("pg/text@1")
+    RECEPTIONIST = "receptionist"
+    CHEFS = "chefs"
+    MANAGER = "manager"
+}
+
 model User {
     id Int @id @default(autoincrement())
     name String
     password String
     userType UserType @default(USER)
     dateCreatedAt DateTime @default(now())
+}
+
+model Employee {
+    id Int @id @default(autoincrement())
+    name String
+    password String
+    wage Int
+    EmployeeType EmployeeType @default(CHEFS)
+    dateHiredAt DateTime @default(now())
 }
 
 model FoodItem {

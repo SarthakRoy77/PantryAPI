@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import { db } from '../dist/src/prisma/db.js';
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
+import verifyToken from '../Middleware/verifyToken.js'
 
 /** In this project, I am not using controllers- since the project 
 - is not so complex, however I would use it in a real world project. **/
@@ -11,62 +12,62 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
     try {
-        const name = req.body["name"];
-        const password = req.body["password"];
-        const adminCode = req.body["adminCode"];
+    const name = req.body["name"];
+    const password = req.body["password"];
+    const adminCode = req.body["adminCode"];
 
-        if (!name || typeof name !== "string" || !name.trim()) {
-            return res.status(400).json({ message: "Name is required (as a non-empty string)" });
-        }
-
-        if (!password || typeof password !== "string" || password.length < 6) {
-            return res.status(400).json({ message: "Password is required (at least 6 characters)" });
-        }
-
-        let userType = "user";
-
-        if (adminCode !== undefined && adminCode !== "") {
-            if (typeof adminCode !== "string") {
-                return res.status(400).json({ message: "Admin code must be a string" });
-            }
-            if (!process.env.ADMIN_CODE) {
-                console.error("ADMIN_CODE environment variable is missing");
-                return res.status(500).json({ message: "Server configuration error" });
-            }
-            if (adminCode !== process.env.ADMIN_CODE) {
-                return res.status(403).json({ message: "Invalid admin code" });
-            }
-            userType = "admin";
-        }
-
-        const existingUser = await db.orm.public.User
-            .where({ name: name.trim() })
-            .first();
-
-        if (existingUser) {
-            return res.status(409).json({ message: "User already exists" });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const user = await db.orm.public.User.create({
-                name: name.trim(),
-                password: hashedPassword,
-                userType,
-        });
-
-        return res.status(201).json({
-            message: `${userType === "admin" ? "Admin" : "User"} registered successfully`,
-            user: {
-                id: user.id,
-                name: user.name,
-                userType: user.userType,
-                dateCreatedAt: user.dateCreatedAt,
-            },
-        });
-    } catch (error) {
-        return res.status(500).json({ message: `Error in POST /register: ${error.message}` });
+    if (!name || typeof name !== "string" || !name.trim()) {
+      return res.status(400).json({ message: "Name is required (as a non-empty string)" });
     }
+
+    if (!password || typeof password !== "string" || password.length < 6) {
+      return res.status(400).json({ message: "Password is required (at least 6 characters)" });
+    }
+
+    let userType = "user";
+
+    if (adminCode !== undefined && adminCode !== "") {
+      if (typeof adminCode !== "string") {
+        return res.status(400).json({ message: "Admin code must be a string" });
+      }
+      if (!process.env.ADMIN_CODE) {
+        console.error("ADMIN_CODE environment variable is missing");
+        return res.status(500).json({ message: "Server configuration error" });
+      }
+      if (adminCode !== process.env.ADMIN_CODE) {
+        return res.status(403).json({ message: "Invalid admin code" });
+      }
+      userType = "admin";
+    }
+
+    const existingUser = await db.orm.public.User
+      .where({ name: name.trim() })
+      .first();
+
+    if (existingUser) {
+      return res.status(409).json({ message: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await db.orm.public.User.create({
+      name: name.trim(),
+      password: hashedPassword,
+      userType,
+    });
+
+    return res.status(201).json({
+      message: `${userType === "admin" ? "Admin" : "User"} registered successfully`,
+      user: {
+        id: user.id,
+        name: user.name,
+        userType: user.userType,
+        dateCreatedAt: user.dateCreatedAt,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: `Error in POST /register route: ${error.message}` });
+  }
 });
 
 router.post('/login/:id', async (req, res) => {
@@ -159,6 +160,7 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
         
         res.cookie('token', token, {
+            maxAge : 72 * 60 * 60 * 1000, // 3 days in milliseconds
             secure : false,
             httpOnly : true
         });
@@ -176,6 +178,51 @@ router.delete('/logout', async (req, res) => {
         return res.status(200).json({message: `The user was logged out successfully`})
     } catch (error) {
         return res.status(500).json({message : `Error in DELETE /logout: ${error.message}`})
+    }
+});
+
+//Get All users route
+router.get('/users', verifyToken, async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(403).json({ message: `Please login to access the /users route` });
+        }
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'You need to be an admin to access this route' });
+        }
+
+        const allUsers = await db.orm.public.User.all();
+        return res.status(200).json({ users: allUsers });
+    } catch (error) {
+        return res.status(500).json({ message: `Error in GET /users: ${error.message}` });
+    }
+});
+
+//Delete User route
+router.delete('/users/:id', verifyToken, async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(403).json({ message: `Please login to access the /users/:id route` });
+        }
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'You need to be an admin to access this route' });
+        }
+
+        const userId = req.params.id;
+
+        if (Number.isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+        const user = await db.orm.public.User.
+        where({ id: parseInt(userId) }).delete();
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        return res.status(200).json({ message: `User with id ${userId} was deleted successfully` });
+    } catch (error) {
+        return res.status(500).json({ message: `Error in DELETE /users/:id: ${error.message}` });
     }
 });
 
