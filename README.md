@@ -17,7 +17,7 @@ Use the above to migrate and update the schema
 ```bash
 npx tsc
 ```
-Use the above to compile the src and migrations in javascript for importing and using the PRISMA ORM 8 
+Use the above to compile the src and migrations in javascript for importing and using the PRISMA ORM 8 after every migration
 
 ## Main modules used along with learning link
 
