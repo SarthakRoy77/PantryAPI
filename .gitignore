@@ -4,7 +4,7 @@ node_modules/
 dist/
 /.vscode
 /migrations
-/.agents/skills
+/.agents
 /.claude
-/.cursor/skills
-/.devin/skills
+/.cursor
+/.devin
